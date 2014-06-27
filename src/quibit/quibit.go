@@ -8,13 +8,14 @@ import (
 
 const (
   MAGIC = 6667787
+  HELO  = 1
 )
 
 type Header struct {
   Magic       uint32
   Command     uint8
   Type        uint8
-  Checksum    uint32
+  Checksum    [48]byte
   Length      uint32
 }
 

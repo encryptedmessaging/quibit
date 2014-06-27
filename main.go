@@ -7,6 +7,7 @@ import (
   "reflect"
   "encoding/binary"
   "quibit"
+  "crypto/sha512"
 )
 
 
@@ -59,6 +60,10 @@ func main() {
                   if n > 0 {
                     payloadBuffer.Write(buffer)
                     if len(payloadBuffer.Bytes()) == int(h.Length) {
+                      //Checksum
+                      if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
+                        log <- "Incorrect Checksum!"
+                      }
                       log <- fmt.Sprintf("Payload: %s", payloadBuffer.Bytes())
                       break
                     }
