@@ -3,8 +3,6 @@ package quibit
 import (
   "bytes"
   "fmt"
-  "io/ioutil"
-  "encoding/json"
   "crypto/sha512"
   "errors"
   "net"
@@ -21,7 +19,7 @@ const (
 
 )
 
-func RecvHeader(conn net.Conn, log chan string) Header {
+func recvHeader(conn net.Conn, log chan string) Header {
   // ret val
   var h Header
   // a buffer for decoing
@@ -57,7 +55,7 @@ func RecvHeader(conn net.Conn, log chan string) Header {
   return h
 }
 
-func RecvPayload(conn net.Conn, h Header) (Frame, error) {
+func recvPayload(conn net.Conn, h Header) (Frame, error) {
   var frame Frame
   payload := make([]byte, h.Length)
   var payloadBuffer bytes.Buffer
@@ -88,18 +86,4 @@ func RecvPayload(conn net.Conn, h Header) (Frame, error) {
   //Should never end here
   panic("RECV PAYLOAD")
   return frame, nil
-}
-
-func LoadPeers() ([]string, error) {
-  peers :=make( []string, 10)
-  peersPath := "./peers.json"
-  content, err := ioutil.ReadFile(peersPath)
-  if err != nil {
-    return peers, err
-  }
-  err = json.Unmarshal(content, &peers)
-  if err != nil {
-    return peers, err
-  }
-  return peers, nil
 }
