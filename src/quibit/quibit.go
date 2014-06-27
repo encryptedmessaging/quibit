@@ -7,7 +7,7 @@ import (
 )
 
 const (
-  MAGIC = 0x420
+  MAGIC = 6667787
 )
 
 type Header struct {

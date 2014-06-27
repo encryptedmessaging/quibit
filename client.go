@@ -12,9 +12,9 @@ func main() {
   if err != nil {
     fmt.Println(err.Error())
   }
-  data := []byte("Hello, World")
+  data := []byte("Hello, World!")
   var h quibit.Header
-  h.Magic = 420
+  h.Magic = quibit.MAGIC
   h.Length = uint32(len(data))
   //Write the header to buffer
   buf,err := h.ToBytes()
