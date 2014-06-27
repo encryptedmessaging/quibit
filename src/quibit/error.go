@@ -1,5 +1,6 @@
 package quibit
 
+// Error type for Quibit-Specific Errors
 type QuibitError int
 
 const (

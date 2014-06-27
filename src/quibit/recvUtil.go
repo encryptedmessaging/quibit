@@ -3,10 +3,10 @@ package quibit
 import (
 	"bytes"
 	"crypto/sha512"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
-	"reflect"
 )
 
 const (
@@ -19,7 +19,7 @@ func recvHeader(conn net.Conn, log chan string) Header {
 	// a buffer for decoing
 	var headerBuffer bytes.Buffer
 	for {
-		headerSize := int(reflect.TypeOf(h).Size())
+		headerSize := int(binary.Size(h))
 		log <- fmt.Sprintf("Header size: %d", headerSize)
 		// Byte slice for moving to buffer
 		buffer := make([]byte, headerSize)
@@ -31,7 +31,6 @@ func recvHeader(conn net.Conn, log chan string) Header {
 			log <- err.Error()
 		}
 		if n > 0 {
-			fmt.Println(buffer)
 			// Add to header buffer
 			headerBuffer.Write(buffer)
 			log <- fmt.Sprintf("%b", headerBuffer.Bytes())
@@ -70,6 +69,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 			if len(payloadBuffer.Bytes()) == int(h.Length) {
 				// Verify checksum
 				frame.Payload = payloadBuffer.Bytes()
+				frame.Header = h
 				if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
 					return frame, errors.New("Incorrect Checksum")
 				}
