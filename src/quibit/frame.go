@@ -2,6 +2,7 @@ package quibit
 
 
 type Frame struct {
+  Peer string
   Header Header
   Payload []byte
 }
