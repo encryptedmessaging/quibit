@@ -4,7 +4,6 @@ import (
   "net"
   "quibit"
   "fmt"
-  "crypto/sha512"
 )
 
 
@@ -15,10 +14,8 @@ func main() {
   }
   data := []byte("Hello, World!")
   var h quibit.Header
-  h.Magic = quibit.MAGIC
-  h.Length = uint32(len(data))
+  h.Configure(data)
   h.Command = quibit.HELO
-  h.Checksum = sha512.Sum384(data)
   //Write the header to buffer
   buf,err := h.ToBytes()
   fmt.Println(buf)

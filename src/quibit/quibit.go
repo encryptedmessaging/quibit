@@ -2,8 +2,11 @@ package quibit
 
 import (
   "bytes"
-  "encoding/binary"
   "fmt"
+  "crypto/sha512"
+  "errors"
+  "net"
+  "reflect"
 )
 
 const (
@@ -11,23 +14,69 @@ const (
   HELO  = 1
 )
 
-type Header struct {
-  Magic       uint32
-  Command     uint8
-  Type        uint8
-  Checksum    [48]byte
-  Length      uint32
+func RecvHeader(conn net.Conn, log chan string) Header {
+  // ret val
+  var h Header
+  // a buffer for decoing
+  var headerBuffer bytes.Buffer
+  for {
+    headerSize := int(reflect.TypeOf(h).Size())
+    log <- fmt.Sprintf("Header size: %d", headerSize)
+    // Byte slice for moving to buffer
+    buffer := make([]byte, headerSize)
+    n, err := conn.Read(buffer)
+    if err != nil {
+      if err.Error() == "EOF" {
+        break
+      }
+      log <- err.Error()
+    }
+    if n > 0 {
+      fmt.Println(buffer)
+      // Add to header buffer
+      headerBuffer.Write(buffer)
+      log <- fmt.Sprintf("%b", headerBuffer.Bytes())
+      // Check to see if we have the whole header
+      if len(headerBuffer.Bytes()) == headerSize {
+        h.FromBytes(headerBuffer.Bytes())
+        log <- fmt.Sprintf("%d", h.Magic)
+        log <- fmt.Sprintf("%d", h.Length)
+        return h
+      }
+    }
+  }
+  // Should never end here
+  panic("RECV HEADER")
+  return h
 }
 
-func (h *Header) ToBytes() ([]byte, error) {
-  fmt.Println(h)
-  buf := new(bytes.Buffer)
-  err := binary.Write(buf, binary.LittleEndian, h)
-  return buf.Bytes(), err
-}
-
-func (h *Header) FromBytes(b []byte) error {
-  buf := bytes.NewReader(b)
-  err := binary.Read(buf, binary.LittleEndian, h)
-  return err
+func RecvPayload(conn net.Conn, h Header) ([]byte, error) {
+  payload := make([]byte, h.Length)
+  var payloadBuffer bytes.Buffer
+  // Make sure we're expecting atleast one byte.
+  if h.Length < 1 {
+    return payload, errors.New("Length < 1")
+  }
+  for {
+    // store in byte array
+    n, err := conn.Read(payload)
+    if err != nil {
+      return payload, err
+    }
+    if n > 1 {
+      // write to buffer
+      payloadBuffer.Write(payload)
+      // Check to see if we have whole payload
+      if len(payloadBuffer.Bytes()) == int(h.Length) {
+        // Verify checksum
+        if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
+          return payloadBuffer.Bytes(), errors.New("Incorrect Checksum")
+        }
+        return payloadBuffer.Bytes(), nil
+      }
+    }
+  }
+  //Should never end here
+  panic("RECV PAYLOAD")
+  return payload, nil
 }
