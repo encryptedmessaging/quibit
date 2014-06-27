@@ -5,7 +5,6 @@ import (
   "bytes"
   "net"
   "reflect"
-  "encoding/binary"
   "quibit"
   "crypto/sha512"
 )
@@ -83,36 +82,3 @@ func main() {
 }
 
 
-func RecvHeader(conn net.Conn, log chan string) *quibit.Header {
-  var h quibit.Header;
-  var headerBuffer bytes.Buffer
-  for {
-    headerSize := int(reflect.TypeOf(h).Size())
-    log <- fmt.Sprint(headerSize)
-    buffer := make([]byte, headerSize)
-    n, err := conn.Read(buffer)
-    if err.Error() == "EOF" {
-      h.FromBytes(buffer)
-      return &h
-    }
-    if err != nil {
-      log <- err.Error()
-    }
-    if n > 0 {
-      headerBuffer.Write(buffer)
-      log <- fmt.Sprint(buffer)
-    }
-    if headerBuffer.Len() == headerSize {
-      buf := bytes.NewReader(buffer)
-      err := binary.Read(buf, binary.LittleEndian, &h)
-      if err != nil {
-        log <- err.Error()
-      }
-      log <- "Got Compete header:"
-      log <- fmt.Sprintf("%s", h)
-      return &h
-      break
-    }
-  }
-  return &h
-}
