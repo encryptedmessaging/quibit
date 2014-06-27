@@ -11,8 +11,11 @@ const (
 )
 
 type Header struct {
-  Magic       int32
-  PayloadLen  int32
+  Magic       uint32
+  Command     uint8
+  Type        uint8
+  Checksum    uint32
+  Length      uint32
 }
 
 func (h *Header) ToBytes() ([]byte, error) {
@@ -25,6 +28,5 @@ func (h *Header) ToBytes() ([]byte, error) {
 func (h *Header) FromBytes(b []byte) error {
   buf := bytes.NewReader(b)
   err := binary.Read(buf, binary.LittleEndian, h)
-  fmt.Sprint(h)
   return err
 }

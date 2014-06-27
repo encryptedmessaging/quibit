@@ -46,7 +46,25 @@ func main() {
             if len(headerBuffer.Bytes()) == headerSize {
               h.FromBytes(headerBuffer.Bytes())
               log <- fmt.Sprintf("%d", h.Magic)
-              log <- fmt.Sprintf("%d", h.PayloadLen)
+              log <- fmt.Sprintf("%d", h.Length)
+              var payloadBuffer bytes.Buffer
+              if h.Length > 0 {
+                for {
+                  log <- fmt.Sprintf("Payload size: %d", h.Length)
+                  buffer := make([]byte, h.Length)
+                  n, err := conn.Read(buffer)
+                  if err != nil {
+                    log <- err.Error()
+                  }
+                  if n > 0 {
+                    payloadBuffer.Write(buffer)
+                    if len(payloadBuffer.Bytes()) == int(h.Length) {
+                      log <- fmt.Sprintf("Payload: %s", payloadBuffer.Bytes())
+                      break
+                    }
+                  }
+                }
+              }
             }
           }
         }
