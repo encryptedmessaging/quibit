@@ -1,13 +1,13 @@
 package quibit
 
 import (
+	"fmt"
 	"net"
 	"strconv"
-	"fmt"
 )
 
 type Peer struct {
-	IP net.IP
+	IP   net.IP
 	Port uint16
 	conn net.Conn
 }
@@ -106,7 +106,7 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	if p.conn == nil {
 		return
 	}
-    for {
+	for {
 		// So now we have a connection.  Let's shake hands.
 		header := recvHeader(p.conn, log)
 		frame, err := recvPayload(p.conn, header)

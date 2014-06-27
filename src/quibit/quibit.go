@@ -27,50 +27,50 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, log chan string) {
 
 	for {
 		select {
-			case frame = <-sendChan:
+		case frame = <-sendChan:
 			// Received frame to send to peer(s)
-				if frame.Peer == "" {
-					// Send to all peers
-					for key, p := range peerList {
-						err = p.sendFrame(frame)
-						if err != nil {
-							if err.Error() != QuibitError(eHEADER).Error() {
-								// Disconnect from Peer
-								p.disconnect()
-								delete(peerList, key)
-							}
-							// Malformed header, break out of for loop
-							fmt.Println("Malformed header in frame!")
-							break
+			if frame.Peer == "" {
+				// Send to all peers
+				for key, p := range peerList {
+					err = p.sendFrame(frame)
+					if err != nil {
+						if err.Error() != QuibitError(eHEADER).Error() {
+							// Disconnect from Peer
+							p.disconnect()
+							delete(peerList, key)
 						}
-					}
-				} else {
-					// Send to one peer
-					p, ok := peerList[frame.Peer]
-					if ok {
-						err = p.sendFrame(frame)
-						if err != nil {
-							if err.Error() != QuibitError(eHEADER).Error() {
-								// Disconnect from Peer
-								p.disconnect()
-								delete(peerList, frame.Peer)
-							}
-							// Malformed header
-							fmt.Println("Malformed header in frame!")
-						}
+						// Malformed header, break out of for loop
+						fmt.Println("Malformed header in frame!")
+						break
 					}
 				}
+			} else {
+				// Send to one peer
+				p, ok := peerList[frame.Peer]
+				if ok {
+					err = p.sendFrame(frame)
+					if err != nil {
+						if err.Error() != QuibitError(eHEADER).Error() {
+							// Disconnect from Peer
+							p.disconnect()
+							delete(peerList, frame.Peer)
+						}
+						// Malformed header
+						fmt.Println("Malformed header in frame!")
+					}
+				}
+			}
 
-			case peer = <-peerChan:
+		case peer = <-peerChan:
 			// Received a new peer to connect to...
-				err = peer.connect()
-				if err == nil {
-					go peer.receive(recvChan, log)
-					peerList[peer.String()] = &peer
+			err = peer.connect()
+			if err == nil {
+				go peer.receive(recvChan, log)
+				peerList[peer.String()] = &peer
 
-				} else {
-					fmt.Println("Error adding peer: ", err)
-				}
+			} else {
+				fmt.Println("Error adding peer: ", err)
+			}
 		} // End select
 	} // End for
 } // End mux()
