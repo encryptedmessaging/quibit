@@ -15,25 +15,6 @@ func main() {
     fmt.Println(err.Error())
   }
   go func() {
-    for {
-      conn, err := listener.Accept()
-      if err != nil {
-        Log <- err.Error()
-      }
-      Log <- "Connection Accepted!"
-      // Second go routine so we can accept more connections
-      go func() {
-        // So now we have a connection.  Let's shake hands.
-        Log <- fmt.Sprintf("%v", conn)
-        header := quibit.RecvHeader(conn, Log)
-        frame, err := quibit.RecvPayload(conn, header)
-        if err != nil {
-          Log <- fmt.Sprint("%s", err.Error())
-        }
-        Log <- fmt.Sprintf("%s", frame.Payload)
-      }()
-    }
-  }()
   for {
     message := <- Log
     fmt.Println(message)

@@ -87,3 +87,20 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
   panic("RECV PAYLOAD")
   return frame, nil
 }
+
+func listenForFrame(conn net.Conn, recvChannel chan Frame) {
+  go func() {
+    for {
+      // So now we have a connection.  Let's shake hands.
+      header := quibit.RecvHeader(conn, Log)
+      frame, err := quibit.RecvPayload(conn, header)
+      if err != nil {
+        if err.Error() == "EOF" {
+          break
+        }
+      }
+      recvChan <- frame
+    }
+    conn.Close()
+  }()
+}
