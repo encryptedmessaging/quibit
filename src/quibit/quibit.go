@@ -3,6 +3,8 @@ package quibit
 import (
   "bytes"
   "fmt"
+  "io/ioutil"
+  "encoding/json"
   "crypto/sha512"
   "errors"
   "net"
@@ -11,7 +13,12 @@ import (
 
 const (
   MAGIC = 6667787
+  
+  //Commands
   HELO  = 1
+  CHECKSUM_FAILURE = 2
+
+
 )
 
 func RecvHeader(conn net.Conn, log chan string) Header {
@@ -50,18 +57,19 @@ func RecvHeader(conn net.Conn, log chan string) Header {
   return h
 }
 
-func RecvPayload(conn net.Conn, h Header) ([]byte, error) {
+func RecvPayload(conn net.Conn, h Header) (Frame, error) {
+  var frame Frame
   payload := make([]byte, h.Length)
   var payloadBuffer bytes.Buffer
   // Make sure we're expecting atleast one byte.
   if h.Length < 1 {
-    return payload, errors.New("Length < 1")
+    return frame, errors.New("Length < 1")
   }
   for {
     // store in byte array
     n, err := conn.Read(payload)
     if err != nil {
-      return payload, err
+      return frame, err
     }
     if n > 1 {
       // write to buffer
@@ -69,14 +77,29 @@ func RecvPayload(conn net.Conn, h Header) ([]byte, error) {
       // Check to see if we have whole payload
       if len(payloadBuffer.Bytes()) == int(h.Length) {
         // Verify checksum
+        frame.Payload = payloadBuffer.Bytes()
         if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
-          return payloadBuffer.Bytes(), errors.New("Incorrect Checksum")
+          return frame, errors.New("Incorrect Checksum")
         }
-        return payloadBuffer.Bytes(), nil
+        return frame, nil
       }
     }
   }
   //Should never end here
   panic("RECV PAYLOAD")
-  return payload, nil
+  return frame, nil
+}
+
+func LoadPeers() ([]string, error) {
+  peers :=make( []string, 10)
+  peersPath := "./peers.json"
+  content, err := ioutil.ReadFile(peersPath)
+  if err != nil {
+    return peers, err
+  }
+  err = json.Unmarshal(content, &peers)
+  if err != nil {
+    return peers, err
+  }
+  return peers, nil
 }

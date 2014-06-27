@@ -13,14 +13,13 @@ func main() {
     fmt.Println(err.Error())
   }
   data := []byte("Hello, World!")
-  var h quibit.Header
-  h.Configure(data)
-  h.Command = quibit.HELO
+  var frame quibit.Frame
+  frame.Configure(data, quibit.HELO)
   //Write the header to buffer
-  buf,err := h.ToBytes()
+  buf,err := frame.Header.ToBytes()
   fmt.Println(buf)
   conn.Write(buf)
   //Write data to buffer
-  conn.Write(data)
+  conn.Write(frame.Payload)
 
 }

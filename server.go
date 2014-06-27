@@ -26,11 +26,11 @@ func main() {
         // So now we have a connection.  Let's shake hands.
         Log <- fmt.Sprintf("%v", conn)
         header := quibit.RecvHeader(conn, Log)
-        payload, err := quibit.RecvPayload(conn, header)
+        frame, err := quibit.RecvPayload(conn, header)
         if err != nil {
           Log <- fmt.Sprint("%s", err.Error())
         }
-        Log <- fmt.Sprintf("%s", payload)
+        Log <- fmt.Sprintf("%s", frame.Payload)
       }()
     }
   }()
