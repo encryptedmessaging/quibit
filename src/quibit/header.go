@@ -25,13 +25,13 @@ func (h *Header) Configure(data []byte) {
 // Serialize Header for sending over the wire
 func (h *Header) ToBytes() ([]byte, error) {
 	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, h)
+	err := binary.Write(buf, binary.BigEndian, h)
 	return buf.Bytes(), err
 }
 
 // Unserialize header from the wire
 func (h *Header) FromBytes(b []byte) error {
 	buf := bytes.NewReader(b)
-	err := binary.Read(buf, binary.LittleEndian, h)
+	err := binary.Read(buf, binary.BigEndian, h)
 	return err
 }
