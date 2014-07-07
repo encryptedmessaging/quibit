@@ -8,10 +8,11 @@ type Frame struct {
 
 // Configure Frame f with a proper header for
 // payload "data" interpreted as "command"
-func (f *Frame) Configure(data []byte, command uint8) {
+func (f *Frame) Configure(data []byte, command, t uint8) {
 	var h Header
 	h.Configure(data)
 	h.Command = command
+	h.Type = t
 	f.Header = h
 	f.Payload = data
 }

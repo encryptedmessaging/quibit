@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 )
 
 type Peer struct {
@@ -56,16 +57,15 @@ func (p *Peer) connect() error {
 	}
 
 	var err error
-	p.conn, err = net.Dial("tcp", p.String())
+	p.conn, err = net.DialTimeout("tcp", p.String(), time.Second)
 	if err != nil {
-		p.conn.Close()
 		p.conn = nil
 		return err
 	}
 	return nil
 }
 
-func (p *Peer) disconnect() {
+func (p *Peer) Disconnect() {
 	if p.conn == nil {
 		fmt.Println("Peer already disconnected!")
 		return

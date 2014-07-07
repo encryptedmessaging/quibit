@@ -29,9 +29,26 @@ func Initialize(log chan string, recvChan, sendChan chan Frame, peerChan chan Pe
 }
 
 // Cleanup the Quibit Service
-// End the mux and server routines, and disconnect from all peers.
+// End the mux and server routines, and Disconnect from all peers.
 func Cleanup() {
 	quit <- true
+}
+
+func KillPeer(p string) {
+	peer, ok := peerList[p]
+	if ok {
+		peer.Disconnect()
+		delete(peerList, p)
+	}
+}
+
+func GetPeer(p string) *Peer {
+	peer, ok := peerList[p]
+	if ok {
+		return peer
+	} else {
+		return nil
+	}
 }
 
 func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log chan string) {
@@ -50,7 +67,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 					if err != nil {
 						if err.Error() != QuibitError(eHEADER).Error() {
 							// Disconnect from Peer
-							p.disconnect()
+							p.Disconnect()
 							delete(peerList, key)
 						}
 						// Malformed header, break out of for loop
@@ -66,7 +83,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 					if err != nil {
 						if err.Error() != QuibitError(eHEADER).Error() {
 							// Disconnect from Peer
-							p.disconnect()
+							p.Disconnect()
 							delete(peerList, frame.Peer)
 						}
 						// Malformed header
@@ -87,7 +104,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 			}
 		case <-quit:
 			for _, p := range peerList {
-				p.disconnect()
+				p.Disconnect()
 			}
 			return
 		} // End select

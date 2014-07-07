@@ -36,7 +36,7 @@ func TestAcceptance(t *testing.T) {
 
 	data := []byte{'a', 'b', 'c', 'd'}
 	frame := new(Frame)
-	frame.Configure(data, 1)
+	frame.Configure(data, 1, 1)
 
 	buf, _ := frame.Header.ToBytes()
 	_, err = conn.Write(buf)
