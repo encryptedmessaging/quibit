@@ -5,7 +5,6 @@ import (
 	"crypto/sha512"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"net"
 )
 
@@ -20,25 +19,18 @@ func recvHeader(conn net.Conn, log chan string) Header {
 	var headerBuffer bytes.Buffer
 	for {
 		headerSize := int(binary.Size(h))
-		log <- fmt.Sprintf("Header size: %d", headerSize)
 		// Byte slice for moving to buffer
 		buffer := make([]byte, headerSize)
 		n, err := conn.Read(buffer)
 		if err != nil {
-			if err.Error() == "EOF" {
-				break
-			}
 			log <- err.Error()
 		}
 		if n > 0 {
 			// Add to header buffer
 			headerBuffer.Write(buffer)
-			log <- fmt.Sprintf("%b", headerBuffer.Bytes())
 			// Check to see if we have the whole header
 			if len(headerBuffer.Bytes()) == headerSize {
 				h.FromBytes(headerBuffer.Bytes())
-				log <- fmt.Sprintf("%d", h.Magic)
-				log <- fmt.Sprintf("%d", h.Length)
 				return h
 			}
 		}

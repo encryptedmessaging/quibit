@@ -14,6 +14,7 @@ func initServer(recvChan chan Frame, peerChan chan Peer, port string) error {
 	go func() {
 		for {
 			// Listen for new Peer
+			fmt.Println("Listening on... ", port)
 			conn, err := listener.Accept()
 			if err != nil {
 				fmt.Println(err.Error())
