@@ -12,7 +12,7 @@ const (
 	MAGIC = 6667787
 )
 
-func recvHeader(conn net.Conn, log chan string) Header {
+func recvHeader(conn net.Conn, log chan string) (Header, error) {
 	// ret val
 	var h Header
 	// a buffer for decoing
@@ -23,6 +23,9 @@ func recvHeader(conn net.Conn, log chan string) Header {
 		buffer := make([]byte, headerSize)
 		n, err := conn.Read(buffer)
 		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
 			log <- err.Error()
 		}
 		if n > 0 {
@@ -31,13 +34,12 @@ func recvHeader(conn net.Conn, log chan string) Header {
 			// Check to see if we have the whole header
 			if len(headerBuffer.Bytes()) == headerSize {
 				h.FromBytes(headerBuffer.Bytes())
-				return h
+				return h, nil
 			}
 		}
 	}
-	// Should never end here
-	panic("RECV HEADER")
-	return h
+
+	return h, errors.New("EOF")
 }
 
 func recvPayload(conn net.Conn, h Header) (Frame, error) {

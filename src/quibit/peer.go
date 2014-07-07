@@ -108,7 +108,11 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	}
 	for {
 		// So now we have a connection.  Let's shake hands.
-		header := recvHeader(p.conn, log)
+		header, err := recvHeader(p.conn, log)
+		if err != nil {
+			p.Disconnect()
+			break
+		}
 		frame, err := recvPayload(p.conn, header)
 		if err != nil {
 			fmt.Println("Error receiving from Peer: ", err)
