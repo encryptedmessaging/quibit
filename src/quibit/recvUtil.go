@@ -47,6 +47,7 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 
 func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	var frame Frame
+	fmt.Println("Payload Length: ", h.Length)
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
 	if h.Length < 1 {
