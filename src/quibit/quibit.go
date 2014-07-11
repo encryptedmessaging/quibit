@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var peerList map[string]*Peer
+var peerList map[string]Peer
 var quit chan bool
 
 // Initialize the Quibit Service
@@ -21,7 +21,7 @@ func Initialize(log chan string, recvChan, sendChan chan Frame, peerChan chan Pe
 		return err
 	}
 
-	peerList = make(map[string]*Peer)
+	peerList = make(map[string]Peer)
 	quit = make(chan bool)
 
 	go mux(recvChan, sendChan, peerChan, quit, log)
@@ -45,7 +45,7 @@ func KillPeer(p string) {
 func GetPeer(p string) *Peer {
 	peer, ok := peerList[p]
 	if ok {
-		return peer
+		return &peer
 	} else {
 		return nil
 	}
@@ -99,7 +99,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 			err = peer.connect()
 			if err == nil {
 				go peer.receive(recvChan, log)
-				peerList[peer.String()] = &peer
+				peerList[peer.String()] = peer
 
 			} else {
 				fmt.Println("Error adding peer: ", err)
