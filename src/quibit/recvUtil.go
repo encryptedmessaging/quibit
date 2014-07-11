@@ -38,6 +38,9 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 			// Check to see if we have the whole header
 			if len(headerBuffer.Bytes()) == headerSize {
 				h.FromBytes(headerBuffer.Bytes())
+				if h.Magic != MAGIC {
+					return h, errors.New("Incorrect Magic Number!")
+				}
 				return h, nil
 			}
 		}
