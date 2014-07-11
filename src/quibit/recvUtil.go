@@ -63,6 +63,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 			return frame, err
 		}
 		if n > 1 {
+			fmt.Println("Writing payload to buffer...")
 			// write to buffer
 			payloadBuffer.Write(payload)
 			// Check to see if we have whole payload
