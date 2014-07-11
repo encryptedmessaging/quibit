@@ -48,9 +48,10 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	fmt.Println("Making Slice of Length: ", h.Length)
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
-	// Make sure we're expecting atleast one byte.
 	if h.Length < 1 {
-		return frame, errors.New("Length < 1")
+		frame.Payload = nil
+		frame.Header = h
+		return frame, nil
 	}
 	for {
 		// store in byte array
