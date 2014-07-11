@@ -67,7 +67,7 @@ func TestAcceptance(t *testing.T) {
 	time.Sleep(time.Millisecond)
 
 	// So now we have a connection.  Let's shake hands.
-	header3 := recvHeader(conn, log)
+	header3, _ := recvHeader(conn, log)
 	frame3, err := recvPayload(conn, header3)
 
 	if err != nil {
