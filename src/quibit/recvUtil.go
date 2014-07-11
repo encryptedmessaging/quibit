@@ -44,6 +44,7 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 
 func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	var frame Frame
+	fmt.Println("Making Slice of Length: ", h.Length)
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
 	// Make sure we're expecting atleast one byte.
