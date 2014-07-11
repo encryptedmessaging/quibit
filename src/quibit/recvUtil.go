@@ -63,6 +63,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 		fmt.Println("In For Loop...")
 		// store in byte array
 		n, err := conn.Read(payload)
+		fmt.Println("Done reading...")
 		if err != nil {
 			return frame, err
 		}
