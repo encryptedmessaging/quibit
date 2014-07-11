@@ -6,7 +6,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"net"
-	"fmt"
 )
 
 const (
@@ -22,6 +21,9 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 		headerSize := int(binary.Size(h))
 		// Byte slice for moving to buffer
 		buffer := make([]byte, headerSize)
+		if conn == nil {
+			return h, errors.New("Nil connection")
+		}
 		n, err := conn.Read(buffer)
 		if err != nil {
 			if err.Error() == "EOF" {
@@ -45,7 +47,6 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 
 func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	var frame Frame
-	fmt.Println("Making Slice of Length: ", h.Length)
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
 	if h.Length < 1 {
