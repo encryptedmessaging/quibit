@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net"
 	"fmt"
+	"time"
 )
 
 const (
@@ -62,6 +63,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	for {
 		fmt.Println("In For Loop...")
 		// store in byte array
+		conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 		n, err := conn.Read(payload)
 		fmt.Println("Done reading...")
 		if err != nil {
