@@ -75,6 +75,7 @@ func (p *Peer) Disconnect() {
 }
 
 func (p *Peer) sendFrame(frame Frame) error {
+	var n int
 	if p == nil {
 		return QuibitError(eNILOBJ)
 	}
@@ -89,12 +90,14 @@ func (p *Peer) sendFrame(frame Frame) error {
 		return QuibitError(eHEADER)
 	}
 
-	_, err = p.conn.Write(headerBytes)
+	n, err = p.conn.Write(headerBytes)
+	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
 	if err != nil {
 		return err
 	}
 
-	_, err = p.conn.Write(frame.Payload)
+	n, err = p.conn.Write(frame.Payload)
+	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
 	if err != nil {
 		return err
 	}
