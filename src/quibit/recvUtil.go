@@ -17,6 +17,7 @@ const (
 func recvHeader(conn net.Conn, log chan string) (Header, error) {
 	// ret val
 	var h Header
+	var t time.Time
 	// a buffer for decoing
 	var headerBuffer bytes.Buffer
 	for {
@@ -26,6 +27,7 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 		if conn == nil {
 			return h, errors.New("Nil connection")
 		}
+		conn.SetReadDeadline(t)
 		n, err := conn.Read(buffer)
 		if err != nil {
 			if err.Error() == "EOF" {
