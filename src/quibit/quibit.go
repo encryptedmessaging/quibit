@@ -61,8 +61,10 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 		case frame = <-sendChan:
 			// Received frame to send to peer(s)
 			if frame.Peer == "" {
+				fmt.Println("Broadcasting message!")
 				// Send to all peers
 				for key, p := range peerList {
+					fmt.Println("Sending Message to Peer: ", key)
 					err = p.sendFrame(frame)
 					if err != nil {
 						if err.Error() != QuibitError(eHEADER).Error() {
