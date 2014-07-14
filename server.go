@@ -1,23 +1,32 @@
-package main
+package quibit
 
 import (
-  "fmt"
-  "net"
-  "quibit"
+	"fmt"
+	"net"
 )
 
+func initServer(recvChan chan Frame, peerChan chan Peer, port string) error {
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		return err
+	}
 
-var Log = make(chan string)
+	go func() {
+		for {
+			// Listen for new Peer
+			fmt.Println("Listening on... ", port)
+			conn, err := listener.Accept()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
-func main() {
-  listener, err := net.Listen("tcp", ":1337")
-  if err != nil {
-    fmt.Println(err.Error())
-  }
-  go func() {
-  for {
-    message := <- Log
-    fmt.Println(message)
-  }
+			// Add peer to peer channel
+			p := peerFromConn(conn)
+			if p != nil {
+				peerChan <- *p
+			}
+
+		} // End for
+	}()
+	return nil
 }
-
