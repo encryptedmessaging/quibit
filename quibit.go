@@ -7,6 +7,13 @@ import (
 var peerList map[string]Peer
 var quit chan bool
 
+// Message Types
+const (
+	BROADCAST = iota
+	REQUEST   = iota
+	REPLY     = iota
+)
+
 // Initialize the Quibit Service
 // Frames from the network will be sent to recvChan, and includes the sending peer
 // Frames for the network should be sent to sendChan, and include the receiving peer
@@ -60,10 +67,15 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 		select {
 		case frame = <-sendChan:
 			// Received frame to send to peer(s)
-			if frame.Peer == "" {
+			if frame.Header.Type == BROADCAST {
 				fmt.Println("Broadcasting message!")
 				// Send to all peers
 				for key, p := range peerList {
+					if key == frame.Peer {
+						// Exclude peer in message
+						continue
+					}
+					
 					fmt.Println("Sending Message to Peer: ", key)
 					err = p.sendFrame(frame)
 					if err != nil {
@@ -79,6 +91,10 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 				}
 			} else {
 				// Send to one peer
+				if frame.Peer == "" {
+					// Error, can't broadcast a non-broadcast message
+					break
+				}
 				p, ok := peerList[frame.Peer]
 				if ok {
 					err = p.sendFrame(frame)
