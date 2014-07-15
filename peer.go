@@ -57,7 +57,7 @@ func (p *Peer) connect() error {
 	}
 
 	var err error
-	p.conn, err = net.DialTimeout("tcp", p.String(), time.Second)
+	p.conn, err = net.DialTimeout("tcp", p.String(), 10 * time.Second)
 	if err != nil {
 		p.conn = nil
 		return err
@@ -119,6 +119,7 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 		// So now we have a connection.  Let's shake hands.
 		header, err := recvHeader(p.conn, log)
 		if err != nil {
+			fmt.Println("Error receiving header: ", err)
 			p.Disconnect()
 			break
 		}
