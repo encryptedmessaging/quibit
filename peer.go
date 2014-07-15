@@ -116,7 +116,7 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 			fmt.Println("Error receiving header: ", err)
 			p.Disconnect()
 			p.connect()
-			break
+			continue
 		}
 		frame, err := recvPayload(p.conn, header)
 		if err != nil {
