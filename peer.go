@@ -96,13 +96,7 @@ func (p *Peer) sendFrame(frame Frame) error {
 		return QuibitError(eHEADER)
 	}
 
-	n, err = p.conn.Write(headerBytes)
-	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
-	if err != nil {
-		return err
-	}
-
-	n, err = p.conn.Write(frame.Payload)
+	n, err = p.conn.Write(append(headerBytes, frame.Payload...))
 	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
 	if err != nil {
 		return err
