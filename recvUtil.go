@@ -34,6 +34,7 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 				break
 			}
 			log <- err.Error()
+			continue
 		}
 		if n > 0 {
 			// Add to header buffer
@@ -65,7 +66,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 	for {
 		fmt.Println("In For Loop...")
 		// store in byte array
-		conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		n, err := conn.Read(payload)
 		fmt.Println("Done reading...")
 		if err != nil {

@@ -62,6 +62,12 @@ func (p *Peer) connect() error {
 		p.conn = nil
 		return err
 	}
+
+	// Set Keep-Alives
+	p.conn.(*net.TCPConn).SetKeepAlive(true)
+	p.conn.(*net.TCPConn).SetKeepAlivePeriod(time.Second)
+
+
 	return nil
 }
 
