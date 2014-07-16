@@ -83,8 +83,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 							delete(peerList, key)
 						}
 						// Malformed header, break out of for loop
-						log <- fmt.Sprintln("Malformed header in frame!")
-						break
+						log <- fmt.Sprintln("Error sending frame: ", err)
 					}
 				}
 			} else {
