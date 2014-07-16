@@ -110,15 +110,13 @@ func (p *Peer) sendFrame(frame Frame) error {
 	return nil
 }
 
-func (p *Peer) receive(recvChan chan Frame, log chan string) {
+func (p Peer) receive(recvChan chan Frame, log chan string) {
 	if p.conn == nil {
 		return
 	}
 	for {
-		// So now we have a connection.  Let's shake hands.
-		fmt.Println("Called recvAll with peer: ", p)
+		// So now we have a connection.  Let's start receiving
 		frame, err := recvAll(*p.conn, log)
-		fmt.Println("Finished recvAll with peer: ", p)
 
 		if err != nil {
 			fmt.Println("Error receiving from Peer: ", err)

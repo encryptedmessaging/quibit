@@ -6,7 +6,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"net"
-	"fmt"
 	"time"
 	"io"
 )
@@ -30,10 +29,7 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 			return frame, errors.New("Nil connection")
 		}
 		conn.SetReadDeadline(t)
-		fmt.Println("Reading header...")
 		n, err := io.ReadFull(conn, buffer)
-		fmt.Println("Received header with connection: ", conn.RemoteAddr())
-		fmt.Printf("Received header with connection pointer: %p\n", conn)
 		if err != nil {
 			if err.Error() == "EOF" || err.Error() == "use of closed network connection" {
 				return frame, err
@@ -57,8 +53,6 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		}
 	}
 
-	fmt.Println("Payload Length: ", h.Length)
-	fmt.Println("Payload from: ", conn.RemoteAddr())
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
 	if h.Length < 1 {
@@ -74,7 +68,6 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 			return frame, err
 		}
 		if n > 1 {
-			fmt.Println("Writing payload to buffer from...", conn.RemoteAddr())
 			// write to buffer
 			payloadBuffer.Write(payload)
 			// Check to see if we have whole payload
@@ -85,7 +78,6 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 				if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
 					return frame, errors.New("Incorrect Checksum")
 				}
-				fmt.Println("Returning with frame from...", conn.RemoteAddr())
 				return frame, nil
 			}
 		}
