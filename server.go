@@ -23,6 +23,7 @@ func initServer(recvChan chan Frame, peerChan chan Peer, port string) error {
 			// Add peer to peer channel
 			p := peerFromConn(conn)
 			if p.conn != nil {
+				fmt.Println("Adding peer... ", p)
 				peerChan <- p
 			}
 

@@ -115,6 +115,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 			err = peer.connect()
 			if err == nil {
 				go peer.receive(recvChan, log)
+				fmt.Println("Adding ", peer, " at ", peer.String())
 				peerList[peer.String()] = peer
 
 			} else {
