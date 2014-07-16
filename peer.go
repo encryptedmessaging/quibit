@@ -13,7 +13,8 @@ type Peer struct {
 	conn net.Conn
 }
 
-func peerFromConn(conn net.Conn) *Peer {
+func peerFromConn(conn net.Conn) Peer {
+	var p Peer
 	addr := conn.RemoteAddr()
 	if addr.Network() != "tcp" {
 		return nil
@@ -25,7 +26,6 @@ func peerFromConn(conn net.Conn) *Peer {
 	}
 
 	// Create New Peer
-	p := new(Peer)
 	p.IP = net.ParseIP(ip)
 	p.Port = uint16(port)
 
