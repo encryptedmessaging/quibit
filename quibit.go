@@ -104,6 +104,8 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 						// Malformed header
 						log <- fmt.Sprintln("Malformed header in frame!")
 					}
+				} else {
+					log <- fmt.Sprintln("Peer not found: ", frame.Peer)
 				}
 			}
 
