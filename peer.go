@@ -17,12 +17,12 @@ func peerFromConn(conn net.Conn) Peer {
 	var p Peer
 	addr := conn.RemoteAddr()
 	if addr.Network() != "tcp" {
-		return nil
+		return p
 	}
 	ip, portStr, err := net.SplitHostPort(addr.String())
 	port, _ := strconv.Atoi(portStr)
 	if err != nil {
-		return nil
+		return p
 	}
 
 	// Create New Peer
