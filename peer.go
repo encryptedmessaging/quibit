@@ -111,15 +111,11 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	}
 	for {
 		// So now we have a connection.  Let's shake hands.
-		header, err := recvHeader(p.conn, log)
-		if err != nil {
-			fmt.Println("Error receiving header: ", err)
-			p.Disconnect()
-			break
-		}
-		frame, err := recvPayload(p.conn, header)
+		frame, err := recvAll(p.conn, log)
 		if err != nil {
 			fmt.Println("Error receiving from Peer: ", err)
+			p.Disconnect()
+			break
 		} else {
 			frame.Peer = p.String()
 			fmt.Println("Sending to Recv Channel...")

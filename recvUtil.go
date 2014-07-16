@@ -15,10 +15,11 @@ const (
 	MAGIC = 6667787
 )
 
-func recvHeader(conn net.Conn, log chan string) (Header, error) {
+func recvAll(conn net.Conn, log chan string) (Frame, error) {
 	// ret val
 	var h Header
 	var t time.Time
+	var frame Frame
 	// a buffer for decoing
 	var headerBuffer bytes.Buffer
 	for {
@@ -26,13 +27,15 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 		// Byte slice for moving to buffer
 		buffer := make([]byte, headerSize)
 		if conn == nil {
-			return h, errors.New("Nil connection")
+			return frame, errors.New("Nil connection")
 		}
 		conn.SetReadDeadline(t)
+		fmt.Println("Reading header...")
 		n, err := io.ReadFull(conn, buffer)
+		fmt.Println("Done Reading header...")
 		if err != nil {
 			if err.Error() == "EOF" {
-				break
+				return frame, err
 			}
 			log <- err.Error()
 			continue
@@ -41,21 +44,18 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 			// Add to header buffer
 			headerBuffer.Write(buffer)
 			// Check to see if we have the whole header
-			if len(headerBuffer.Bytes()) == headerSize {
-				h.FromBytes(headerBuffer.Bytes())
-				if h.Magic != MAGIC {
-					return h, errors.New("Incorrect Magic Number!")
-				}
-				return h, nil
+			if len(headerBuffer.Bytes()) != headerSize {
+				return frame, errors.New("Incorrect header size...")
 			}
+			h.FromBytes(headerBuffer.Bytes())
+			if h.Magic != MAGIC {
+				return frame, errors.New("Incorrect Magic Number!")
+			}
+			frame.Header = h
+			break
 		}
 	}
 
-	return h, errors.New("EOF")
-}
-
-func recvPayload(conn net.Conn, h Header) (Frame, error) {
-	var frame Frame
 	fmt.Println("Payload Length: ", h.Length)
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
