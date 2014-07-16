@@ -17,6 +17,7 @@ const (
 
 func recvAll(conn net.Conn, log chan string) (Frame, error) {
 	fmt.Println("Called recvAll with connection: ", conn.RemoteAddr())
+	fmt.Printf("Called recvAll with connection pointer: %p\n", conn)
 	// ret val
 	var h Header
 	var t time.Time
@@ -33,7 +34,8 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		conn.SetReadDeadline(t)
 		fmt.Println("Reading header...")
 		n, err := io.ReadFull(conn, buffer)
-		fmt.Println("Done Reading header...")
+		fmt.Println("Received header with connection: ", conn.RemoteAddr())
+		fmt.Printf("Received header with connection pointer: %p\n", conn)
 		if err != nil {
 			if err.Error() == "EOF" || err.Error() == "use of closed network connection" {
 				return frame, err
