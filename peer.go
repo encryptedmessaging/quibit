@@ -10,12 +10,16 @@ import (
 type Peer struct {
 	IP   net.IP
 	Port uint16
-	conn net.Conn
+	conn *net.Conn
 }
 
-func peerFromConn(conn net.Conn) Peer {
+func peerFromConn(conn *net.Conn) Peer {
 	var p Peer
-	addr := conn.RemoteAddr()
+	if conn == nil {
+		return p
+	}
+	
+	addr := (*conn).RemoteAddr()
 	if addr.Network() != "tcp" {
 		return p
 	}
@@ -57,15 +61,16 @@ func (p *Peer) connect() error {
 	}
 
 	var err error
-	p.conn, err = net.DialTimeout("tcp", p.String(), 10 * time.Second)
+	lConn, err := net.DialTimeout("tcp", p.String(), 10 * time.Second)
+	p.conn = &lConn
 	if err != nil {
 		p.conn = nil
 		return err
 	}
 
 	// Set Keep-Alives
-	p.conn.(*net.TCPConn).SetKeepAlive(true)
-	p.conn.(*net.TCPConn).SetKeepAlivePeriod(time.Second)
+	(*p.conn).(*net.TCPConn).SetKeepAlive(true)
+	(*p.conn).(*net.TCPConn).SetKeepAlivePeriod(time.Second)
 
 
 	return nil
@@ -76,7 +81,7 @@ func (p *Peer) Disconnect() {
 		fmt.Println("Peer already disconnected!")
 		return
 	}
-	p.conn.Close()
+	(*p.conn).Close()
 	p.conn = nil
 }
 
@@ -96,7 +101,7 @@ func (p *Peer) sendFrame(frame Frame) error {
 		return QuibitError(eHEADER)
 	}
 
-	n, err = p.conn.Write(append(headerBytes, frame.Payload...))
+	n, err = (*p.conn).Write(append(headerBytes, frame.Payload...))
 	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
 	if err != nil {
 		return err
@@ -111,14 +116,14 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	}
 	for {
 		// So now we have a connection.  Let's shake hands.
-		frame, err := recvAll(p.conn, log)
+		frame, err := recvAll(*p.conn, log)
 		if err != nil {
 			fmt.Println("Error receiving from Peer: ", err)
 			p.Disconnect()
 			break
 		} else {
 			frame.Peer = p.String()
-			fmt.Println("Sending to Recv Channel from... ", p.conn.RemoteAddr())
+			fmt.Println("Sending to Recv Channel from... ", (*p.conn).RemoteAddr())
 			recvChan <- frame
 		}
 	} // End for
