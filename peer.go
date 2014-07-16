@@ -78,7 +78,6 @@ func (p *Peer) connect() error {
 
 func (p *Peer) Disconnect() {
 	if p.conn == nil {
-		fmt.Println("Peer already disconnected!")
 		return
 	}
 	(*p.conn).Close()
@@ -86,7 +85,6 @@ func (p *Peer) Disconnect() {
 }
 
 func (p *Peer) sendFrame(frame Frame) error {
-	var n int
 	if p == nil {
 		return QuibitError(eNILOBJ)
 	}
@@ -101,8 +99,7 @@ func (p *Peer) sendFrame(frame Frame) error {
 		return QuibitError(eHEADER)
 	}
 
-	n, err = (*p.conn).Write(append(headerBytes, frame.Payload...))
-	fmt.Printf("Wrote %d Bytes to Peer: %s\n", n, p)
+	_, err = (*p.conn).Write(append(headerBytes, frame.Payload...))
 	if err != nil {
 		return err
 	}
@@ -119,12 +116,11 @@ func (p Peer) receive(recvChan chan Frame, log chan string) {
 		frame, err := recvAll(*p.conn, log)
 
 		if err != nil {
-			fmt.Println("Error receiving from Peer: ", err)
+			log <- fmt.Sprintln("Error receiving from Peer: ", err)
 			p.Disconnect()
 			break
 		} else {
 			frame.Peer = p.String()
-			fmt.Println("Sending to Recv Channel from... ", (*p.conn).RemoteAddr())
 			recvChan <- frame
 		}
 	} // End for

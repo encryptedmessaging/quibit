@@ -68,15 +68,13 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 		case frame = <-sendChan:
 			// Received frame to send to peer(s)
 			if frame.Header.Type == BROADCAST {
-				fmt.Println("Broadcasting message!")
 				// Send to all peers
 				for key, p := range peerList {
 					if key == frame.Peer {
 						// Exclude peer in message
 						continue
 					}
-					
-					fmt.Println("Sending Message to Peer: ", key)
+
 					err = p.sendFrame(frame)
 					if err != nil {
 						if err.Error() != QuibitError(eHEADER).Error() {
@@ -85,7 +83,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 							delete(peerList, key)
 						}
 						// Malformed header, break out of for loop
-						fmt.Println("Malformed header in frame!")
+						log <- fmt.Sprintln("Malformed header in frame!")
 						break
 					}
 				}
@@ -105,7 +103,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 							delete(peerList, frame.Peer)
 						}
 						// Malformed header
-						fmt.Println("Malformed header in frame!")
+						log <- fmt.Sprintln("Malformed header in frame!")
 					}
 				}
 			}
@@ -122,7 +120,7 @@ func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log 
 				go rawPeer.receive(recvChan, log)
 
 			} else {
-				fmt.Println("Error adding peer: ", err)
+				log <- fmt.Sprintln("Error adding peer: ", err)
 			}
 		case <-quit:
 			for _, p := range peerList {
