@@ -34,7 +34,7 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		n, err := io.ReadFull(conn, buffer)
 		fmt.Println("Done Reading header...")
 		if err != nil {
-			if err.Error() == "EOF" {
+			if err.Error() == "EOF" || err.Error() == "use of closed network connection" {
 				return frame, err
 			}
 			log <- err.Error()
