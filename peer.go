@@ -116,9 +116,9 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	}
 	for {
 		// So now we have a connection.  Let's shake hands.
-		fmt.Println("Called recvAll with connection: ", (*p.conn).RemoteAddr())
+		fmt.Println("Called recvAll with peer: ", p)
 		frame, err := recvAll(*p.conn, log)
-		fmt.Println("Finished recvAll with connection: ", (*p.conn).RemoteAddr())
+		fmt.Println("Finished recvAll with peer: ", p)
 
 		if err != nil {
 			fmt.Println("Error receiving from Peer: ", err)
