@@ -16,8 +16,6 @@ const (
 )
 
 func recvAll(conn net.Conn, log chan string) (Frame, error) {
-	fmt.Println("Called recvAll with connection: ", conn.RemoteAddr())
-	fmt.Printf("Called recvAll with connection pointer: %p\n", conn)
 	// ret val
 	var h Header
 	var t time.Time
@@ -69,11 +67,9 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		return frame, nil
 	}
 	for {
-		fmt.Println("In For Loop for...", conn.RemoteAddr())
 		// store in byte array
 		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		n, err := io.ReadFull(conn, payload)
-		fmt.Println("Done reading from...", conn.RemoteAddr())
 		if err != nil {
 			return frame, err
 		}
@@ -89,6 +85,7 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 				if h.Checksum != sha512.Sum384(payloadBuffer.Bytes()) {
 					return frame, errors.New("Incorrect Checksum")
 				}
+				fmt.Println("Returning with frame from...", conn.RemoteAddr())
 				return frame, nil
 			}
 		}
