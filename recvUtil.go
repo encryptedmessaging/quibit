@@ -60,6 +60,7 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 	}
 
 	fmt.Println("Payload Length: ", h.Length)
+	fmt.Println("Payload from: ", conn.RemoteAddr())
 	payload := make([]byte, h.Length)
 	var payloadBuffer bytes.Buffer
 	if h.Length < 1 {
@@ -68,16 +69,16 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		return frame, nil
 	}
 	for {
-		fmt.Println("In For Loop...")
+		fmt.Println("In For Loop for...", conn.RemoteAddr())
 		// store in byte array
 		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		n, err := io.ReadFull(conn, payload)
-		fmt.Println("Done reading...")
+		fmt.Println("Done reading from...", conn.RemoteAddr())
 		if err != nil {
 			return frame, err
 		}
 		if n > 1 {
-			fmt.Println("Writing payload to buffer...")
+			fmt.Println("Writing payload to buffer from...", conn.RemoteAddr())
 			// write to buffer
 			payloadBuffer.Write(payload)
 			// Check to see if we have whole payload
