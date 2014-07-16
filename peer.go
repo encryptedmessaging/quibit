@@ -118,7 +118,7 @@ func (p *Peer) receive(recvChan chan Frame, log chan string) {
 			break
 		} else {
 			frame.Peer = p.String()
-			fmt.Println("Sending to Recv Channel from... ", p)
+			fmt.Println("Sending to Recv Channel from... ", p.conn.RemoteAddr())
 			recvChan <- frame
 		}
 	} // End for
