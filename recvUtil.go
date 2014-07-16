@@ -16,6 +16,7 @@ const (
 )
 
 func recvAll(conn net.Conn, log chan string) (Frame, error) {
+	fmt.Println("Called recvAll with connection: ", conn.RemoteAddr())
 	// ret val
 	var h Header
 	var t time.Time
