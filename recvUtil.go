@@ -8,6 +8,7 @@ import (
 	"net"
 	"fmt"
 	"time"
+	"io"
 )
 
 const (
@@ -28,7 +29,7 @@ func recvHeader(conn net.Conn, log chan string) (Header, error) {
 			return h, errors.New("Nil connection")
 		}
 		conn.SetReadDeadline(t)
-		n, err := conn.Read(buffer)
+		n, err := io.ReadFull(conn, buffer)
 		if err != nil {
 			if err.Error() == "EOF" {
 				break
@@ -67,7 +68,7 @@ func recvPayload(conn net.Conn, h Header) (Frame, error) {
 		fmt.Println("In For Loop...")
 		// store in byte array
 		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
-		n, err := conn.Read(payload)
+		n, err := io.ReadFull(conn, payload)
 		fmt.Println("Done reading...")
 		if err != nil {
 			return frame, err
