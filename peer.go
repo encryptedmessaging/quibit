@@ -48,7 +48,7 @@ func (p *Peer) IsConnected() bool {
 	if p == nil {
 		return false
 	}
-	return (p.conn == nil)
+	return (p.conn != nil)
 }
 
 func (p *Peer) connect() error {
