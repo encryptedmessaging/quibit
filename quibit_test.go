@@ -67,8 +67,7 @@ func TestAcceptance(t *testing.T) {
 	time.Sleep(time.Millisecond)
 
 	// So now we have a connection.  Let's shake hands.
-	header3, _ := recvHeader(conn, log)
-	frame3, err := recvPayload(conn, header3)
+	frame3, err := recvAll(conn, log)
 
 	if err != nil {
 		fmt.Println("Error Receiving Frame 3... ", err)
