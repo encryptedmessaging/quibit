@@ -6,6 +6,7 @@ import (
 
 var peerList map[string]Peer
 var quit chan bool
+var incomingConnections int
 
 // Message Types
 const (
@@ -22,6 +23,8 @@ const (
 // If an error is returned, than neither the server or mux has been started.
 func Initialize(log chan string, recvChan, sendChan chan Frame, peerChan chan Peer, port uint16) error {
 	var err error
+
+	incomingConnections = 0
 
 	err = initServer(recvChan, peerChan, fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -56,6 +59,16 @@ func GetPeer(p string) *Peer {
 	} else {
 		return nil
 	}
+}
+
+func Status() int {
+	if len(peerList) < 1 {
+		return 0
+	}
+	if incomingConnections < 1 {
+		return 1
+	}
+	return 2
 }
 
 func mux(recvChan, sendChan chan Frame, peerChan chan Peer, quit chan bool, log chan string) {

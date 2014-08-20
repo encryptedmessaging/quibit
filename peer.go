@@ -11,9 +11,10 @@ type Peer struct {
 	IP   net.IP
 	Port uint16
 	conn *net.Conn
+	external bool
 }
 
-func peerFromConn(conn *net.Conn) Peer {
+func peerFromConn(conn *net.Conn, external bool) Peer {
 	var p Peer
 	if conn == nil {
 		return p
@@ -34,6 +35,7 @@ func peerFromConn(conn *net.Conn) Peer {
 	p.Port = uint16(port)
 
 	p.conn = conn
+	p.external = external
 	return p
 }
 
@@ -72,6 +74,10 @@ func (p *Peer) connect() error {
 	(*p.conn).(*net.TCPConn).SetKeepAlive(true)
 	(*p.conn).(*net.TCPConn).SetKeepAlivePeriod(time.Second)
 
+	if p.external {
+		incomingConnections++
+	}
+
 
 	return nil
 }
@@ -82,6 +88,9 @@ func (p *Peer) Disconnect() {
 	}
 	(*p.conn).Close()
 	p.conn = nil
+	if p.external {
+		incomingConnections--
+	}
 }
 
 func (p *Peer) sendFrame(frame Frame) error {
@@ -107,7 +116,7 @@ func (p *Peer) sendFrame(frame Frame) error {
 	return nil
 }
 
-func (p Peer) receive(recvChan chan Frame, log chan string) {
+func (p *Peer) receive(recvChan chan Frame, log chan string) {
 	if p.conn == nil {
 		return
 	}
@@ -117,7 +126,7 @@ func (p Peer) receive(recvChan chan Frame, log chan string) {
 
 		if err != nil {
 			log <- fmt.Sprintln("Error receiving from Peer: ", err)
-			p.Disconnect()
+			KillPeer(p.String())
 			break
 		} else {
 			frame.Peer = p.String()
