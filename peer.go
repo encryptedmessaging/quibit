@@ -9,6 +9,8 @@
     LICENSE file for details.
 **/
 
+// Package quibit provides basic Peer-To-Peer asynchronous network
+// functionality and peer management.
 package quibit
 
 import (
@@ -19,8 +21,8 @@ import (
 )
 
 type Peer struct {
-	IP   net.IP
-	Port uint16
+	IP   net.IP // Standard 16-byte IP Address
+	Port uint16 // Standard 2-byte TCP Port
 	conn *net.Conn
 	external bool
 }
@@ -50,6 +52,7 @@ func peerFromConn(conn *net.Conn, external bool) Peer {
 	return p
 }
 
+// String returns the <IP>:<Host> Identifier of Peer
 func (p *Peer) String() string {
 	if p == nil {
 		return ""
@@ -57,6 +60,7 @@ func (p *Peer) String() string {
 	return net.JoinHostPort(p.IP.String(), strconv.Itoa(int(p.Port)))
 }
 
+// Returns the connection status of Peer
 func (p *Peer) IsConnected() bool {
 	if p == nil {
 		return false
@@ -93,6 +97,7 @@ func (p *Peer) connect() error {
 	return nil
 }
 
+// Forces Disconnect from Peer and closes all incoming connections.
 func (p *Peer) Disconnect() {
 	if p.conn == nil {
 		return

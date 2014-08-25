@@ -9,6 +9,8 @@
     LICENSE file for details.
 **/
 
+// Package quibit provides basic Peer-To-Peer asynchronous network
+// functionality and peer management.
 package quibit
 
 import (
@@ -55,6 +57,8 @@ func Cleanup() {
 	quit <- true
 }
 
+// KillPeer Force Disconnects from a Peer
+// All incoming data is dropped and the peer is removed from the Peer List
 func KillPeer(p string) {
 	peer, ok := peerList[p]
 	if ok {
@@ -63,6 +67,8 @@ func KillPeer(p string) {
 	}
 }
 
+// Get Peer associated with the given <IP>:<Host> string
+// <nil> Signifies a disconnected or unknown peer.
 func GetPeer(p string) *Peer {
 	peer, ok := peerList[p]
 	if ok {
@@ -72,6 +78,10 @@ func GetPeer(p string) *Peer {
 	}
 }
 
+// Status returns the Current Connection Status
+// Returns 0 on disconnected
+// Returns 1 on Client Connection (Outgoing Connections Only)
+// Returns 2 On Full Connection (Incoming and Outgoing Connections)
 func Status() int {
 	if len(peerList) < 1 {
 		return 0

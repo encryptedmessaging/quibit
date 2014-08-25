@@ -9,6 +9,8 @@
     LICENSE file for details.
 **/
 
+// Package quibit provides basic Peer-To-Peer asynchronous network
+// functionality and peer management.
 package quibit
 
 import (
@@ -18,6 +20,9 @@ import (
 	"time"
 )
 
+// TestAcceptence is an all-encompassing end-to-end acceptance test. 
+// Includes the testing of the Initialize Function, Incoming Connections,
+// and Peer Management functions.
 func TestAcceptance(t *testing.T) {
 	log := make(chan string, 100)
 	recvChan := make(chan Frame, 10)

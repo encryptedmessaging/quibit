@@ -9,6 +9,8 @@
     LICENSE file for details.
 **/
 
+// Package quibit provides basic Peer-To-Peer asynchronous network
+// functionality and peer management.
 package quibit
 
 type Frame struct {
