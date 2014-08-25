@@ -21,19 +21,30 @@ var peerList map[string]Peer
 var quit chan bool
 var incomingConnections int
 
-// Message Types
+
+//Message Types:
+//
+//Broadcast goes to all connected peers except for the Peer specified in the Frame.
+//
+//Request and Reply go to the Peer specified in the Frame.
 const (
 	BROADCAST = iota
 	REQUEST   = iota
 	REPLY     = iota
 )
 
-// Initialize the Quibit Service
-// Frames from the network will be sent to recvChan, and includes the sending peer
-// Frames for the network should be sent to sendChan, and include the receiving peer
-// New Peers for connecting should be sent to peerChan.
-// A local server will be started on the port specified by "port"
-// If an error is returned, than neither the server or mux has been started.
+
+//Initialize the Quibit Service
+//
+//Frames from the network will be sent to recvChan, and includes the sending peer
+//
+//Frames for the network should be sent to sendChan, and include the receiving peer
+//
+//New Peers for connecting should be sent to peerChan.
+//
+//A local server will be started on the port specified by "port"
+//
+//If an error is returned, than neither the server or mux has been started.
 func Initialize(log chan string, recvChan, sendChan chan Frame, peerChan chan Peer, port uint16) error {
 	var err error
 
@@ -51,14 +62,18 @@ func Initialize(log chan string, recvChan, sendChan chan Frame, peerChan chan Pe
 	return nil
 }
 
-// Cleanup the Quibit Service
-// End the mux and server routines, and Disconnect from all peers.
+
+//Cleanup the Quibit Service
+//
+//End the mux and server routines, and Disconnect from all peers.
 func Cleanup() {
 	quit <- true
 }
 
-// KillPeer Force Disconnects from a Peer
-// All incoming data is dropped and the peer is removed from the Peer List
+
+//KillPeer Force Disconnects from a Peer
+//
+//All incoming data is dropped and the peer is removed from the Peer List
 func KillPeer(p string) {
 	peer, ok := peerList[p]
 	if ok {
@@ -67,8 +82,10 @@ func KillPeer(p string) {
 	}
 }
 
-// Get Peer associated with the given <IP>:<Host> string
-// <nil> Signifies a disconnected or unknown peer.
+
+//Get Peer associated with the given <IP>:<Host> string
+//
+//<nil> Signifies a disconnected or unknown peer.
 func GetPeer(p string) *Peer {
 	peer, ok := peerList[p]
 	if ok {
@@ -78,10 +95,12 @@ func GetPeer(p string) *Peer {
 	}
 }
 
-// Status returns the Current Connection Status
-// Returns 0 on disconnected
-// Returns 1 on Client Connection (Outgoing Connections Only)
-// Returns 2 On Full Connection (Incoming and Outgoing Connections)
+
+//Status returns the Current Connection Status
+//
+// Returns 0 on disconnected.  
+// Returns 1 on Client Connection (Outgoing Connections Only).  
+// Returns 2 On Full Connection (Incoming and Outgoing Connections).
 func Status() int {
 	if len(peerList) < 1 {
 		return 0
