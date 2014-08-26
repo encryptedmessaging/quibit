@@ -42,11 +42,8 @@ func recvAll(conn net.Conn, log chan string) (Frame, error) {
 		conn.SetReadDeadline(t)
 		n, err := io.ReadFull(conn, buffer)
 		if err != nil {
-			if err.Error() == "EOF" || err.Error() == "use of closed network connection" {
-				return frame, err
-			}
 			log <- err.Error()
-			continue
+			return frame, err
 		}
 		if n > 0 {
 			// Add to header buffer
